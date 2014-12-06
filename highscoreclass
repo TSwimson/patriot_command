@@ -1,0 +1,22 @@
+filename = 'highScores'
+class highScore:
+    def _init_():
+        self.names = []
+        self.levels = []
+        self.scores = []
+        self.filename = 'highScores.txt'
+    def add(self, name, score, level):
+        self.names.append(name)
+        self.levels.append(level)
+        self.scores.append(score)
+        #self.FILE = open(filename, 'w')
+        #self.FILE.write()
+    def display(self):
+        i = 0
+        print('High Scores')
+        for score in self.scores:
+            print (self.names[i] + score + self.levels[i])
+            i += 1
+highscores = highScore
+highscores.add('Tanner', 789, 12)
+highscores.display
