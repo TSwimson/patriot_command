@@ -36,7 +36,7 @@ class Main:
         self.framecap = True
         self.debug = False
         self.clock = pygame.time.Clock()
-        self.FRAMES_PER_SECOND = 60
+        self.FRAMES_PER_SECOND = 30
         self.fps = 0
         self.frames = 0
         self.explosionsnd = pygame.mixer.Sound('files/explosion.wav')
@@ -153,7 +153,7 @@ class Main:
                         self.gamestate = 'playing'
                 elif e.key == K_d:
                     self.debug = not self.debug
-                    self.framecap = not self.framecap
+                    #self.framecap = not self.framecap
                 elif e.key == K_m:
                     self.money += 1000
             if e.type == QUIT:
@@ -189,7 +189,7 @@ class Main:
                         else:
                             self.emptyclip.play()
                 if self.gamestate == 'store':
-                    if cannonrect.collidepoint(e.pos) and self.money > 499:
+                    if self.cannonrect.collidepoint(e.pos) and self.money > 499:
                         if self.buildings[0] == 0 or self.buildings[6] == 0 or self.buildings[12] == 0:
                             self.money -= 500
                             if self.buildings[0] == 0:
@@ -198,7 +198,7 @@ class Main:
                                 self.buildings[6] = 1
                             else:
                                 self.buildings[12] = 1
-                    if cityrect.collidepoint(e.pos) and self.money > 499:
+                    if self.cityrect.collidepoint(e.pos) and self.money > 499:
 						loopcounter = 0
 						for building in self.buildings:
 							if building == 0 and loopcounter != 0 and loopcounter != 6 and loopcounter != 12:
