@@ -8,21 +8,24 @@ BLACK = (0,0,0)
 BLUE = (50, 130, 255)
 LBLUE = (120, 150, 255)
 RED = (255,0,0)
-KEYCOLOR = (252, 33, 198) 
+KEYCOLOR = (255,0,200)
 
 # Main Class Main Class Main Class Main Class Main Class Main Class Main Class
 class Main:
     def __init__(self):
         self.WIDTH = 1024
         self.HEIGHT = 775
-        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
+        self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT), pygame.FULLSCREEN | pygame.HWSURFACE)
+        pygame.display.set_caption('Patriot Command')
         self.cursor = pygame.image.load('files/crossHairs.bmp').convert()
         self.cursorrect = self.cursor.get_rect()
         self.cursor.set_colorkey(KEYCOLOR)
         self.gameOver = pygame.mixer.Sound('files/GameOver.wav')
         self.intros = pygame.mixer.Sound('files/intro.wav')
         self.emptyclip = pygame.mixer.Sound('files/emptyclip.wav')
-
+        self.last_score = -1
+        self.last_money = -1
+        self.last_ammo = -1
         
         self.store = store.store(self.screen)
         self.clock = pygame.time.Clock()
@@ -48,6 +51,12 @@ class Main:
         self.cityrect = self.city.get_rect()
         self.cityrect.centerx = self.cannonrect.centerx
         self.cityrect.centery = self.cannonrect.centery + 50
+
+        self.titleFont = pygame.font.SysFont(None, 72)
+        self.basicFont = pygame.font.SysFont(None, 48)
+        self.smallFont = pygame.font.SysFont(None, 26)
+        self.title = self.titleFont.render('Patriot Command', True, LBLUE)
+        self.by = self.basicFont.render('By Tanner Swenson', True, BLUE)
         self.intros.play()
     def newgame(self):
         self.money = 0
@@ -78,8 +87,11 @@ class Main:
         while e < self.explosionCount:
             self.explosions[e].step()
             e +=1
+        self.levelOver = True
         for m in self.missiles:
             m.step()
+            if m.alive == True:
+                self.levelOver = False
             if m.alive == True and m.y > 736:
                 m.alive == False
                 self.buildings[m.target] = 0
@@ -204,23 +216,31 @@ class Main:
         self.mspeed += 0.08
         self.mcolor = (RED)
         self.level += 1
+        self.leveltxt = self.smallFont.render('Level  ' + str(self.level), True, BLUE)
+
         while self.missileCount <= self.lines:
             self.missiles.append(classes.missile())
             self.missiles[self.missileCount].create(self.mcolor, self.mspeed)
             self.missileCount += 1
     def scoreBoard(self):
-        self.scoretxt = self.smallFont.render('Score ' + str(self.score), True, BLUE)
-        self.leveltxt = self.smallFont.render('Level  ' + str(self.level), True, BLUE)
-        self.ammotxt = self.smallFont.render('Ammo: ' + str(self.ammo), True, BLUE)
-        self.moneytxt = self.smallFont.render('Money: $' + str(self.money), True, BLUE)
+        if self.score != self.last_score:
+            self.scoretxt = self.smallFont.render('Score ' + str(self.score), True, BLUE)
+        if self.last_money != self.money:
+            self.moneytxt = self.smallFont.render('Money: $' + str(self.money), True, BLUE)
+        if self.last_ammo != self.ammo:
+            self.ammotxt = self.smallFont.render('Ammo: ' + str(self.ammo), True, BLUE)
         if self.debug == True:
             self.fps = int(self.fps)
             self.fpstxt = self.smallFont.render("FPS: " + str(self.fps), True, BLUE)
+
             self.screen.blit(self.fpstxt,(460, 50))
         self.screen.blit(self.leveltxt, (900, 30))
         self.screen.blit(self.scoretxt, (10, 30))
         self.screen.blit(self.moneytxt, (10, 50))
         self.screen.blit(self.ammotxt, (460, 30))
+        self.last_score = self.score
+        self.last_ammo = self.ammo
+        self.last_money = self.money
     def getname(self):
         return enterbox(msg = 'Enter your name'
                 , title = 'Enter your name'
@@ -235,6 +255,8 @@ class Main:
         self.mcolor = (BLUE)
         self.level += 1
         self.ammo = self.lines + 10 + self.store.ammo
+        self.leveltxt = self.smallFont.render('Level  ' + str(self.level), True, BLUE)
+
         while self.missileCount <= self.lines:
             self.missiles.append(classes.missile())
             self.missiles[self.missileCount].create(self.mcolor, self.mspeed)
@@ -255,13 +277,9 @@ class Main:
         self.screen.blit(self.moneytxt, (10, 50))
         self.screen.blit(self.ammotxt, (10, 90))
     def loop(self):
-        pygame.display.set_caption('Patriot Command')
-        self.titleFont = pygame.font.SysFont(None, 72)
-        self.basicFont = pygame.font.SysFont(None, 48)
-        self.smallFont = pygame.font.SysFont(None, 26)
-        self.title = self.titleFont.render('Patriot Command', True, LBLUE)
+
         self.highscores = highscoreclass.highScore()
-        self.by = self.basicFont.render('By Tanner Swenson', True, BLUE)
+
         c = 0
         self.intros.play()
         while True:
@@ -295,12 +313,6 @@ class Main:
                     if c > 5:
                         self.collisions()
                         c = 0
-                        self.levelOver = True
-                        m = 0
-                        while m < self.missileCount:
-                            if self.missiles[m].alive == True:
-                                self.levelOver = False
-                            m += 1
                     c += 1
                     if self.levelOver == True:
                         for g in self.buildings:
@@ -313,6 +325,7 @@ class Main:
                     else:
                         self.clock.tick()
                     self.fps = self.clock.get_fps()
+                    print self.fps
                 while self.gamestate == 'store':
                     self.screen.fill((0,0,0))
                     self.event()

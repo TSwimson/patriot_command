@@ -1,7 +1,7 @@
 import pygame, math, myMath, random
 white = (255,255,255)
 black = (0,0,0)
-KEYCOLOR = (252, 32, 198) #(255,0,200)
+KEYCOLOR = (255,0,200)
 #EXPLOSION CLASS EXPLOSION CLASS EXPLOSION CLASS EXPLOSION CLASS EXPLOSION CLASS 
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, pos):
